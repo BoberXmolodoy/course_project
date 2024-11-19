@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Графік Матеріальних Ресурсів</title>
+    <link rel="stylesheet" href="/css/materials_chart.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Графік Матеріальних Ресурсів</h1>
+
+        <!-- Кнопки для перемикання типів графіків -->
+        <div class="chart-controls">
+            <button id="pieChartBtn" class="chart-btn">Кругова діаграма</button>
+            <button id="barChartBtn" class="chart-btn">Стовпчаста діаграма</button>
+        </div>
+
+        <!-- Полотно для графіка -->
+        <canvas id="materialsChart" data-materials='<%= JSON.stringify(materials) %>' width="400" height="400"></canvas>
+        <a href="/materials" class="back-link">Назад до списку матеріалів</a>
+
+        <!-- Перелік матеріалів -->
+        <div class="materials-list">
+            <% if (materials.length > 0) { %>
+                <% materials.forEach(material => { %>
+                    <div class="material-item">
+                        <span><strong>Назва:</strong> <%= material.name %></span>
+                        <span><strong>Кількість:</strong> <%= material.quantity %></span>
+                        <span><strong>Опис:</strong> <%= material.description %></span>
+                        <span><strong>Тип:</strong> <%= material.type %></span>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <p>Дані відсутні. Додайте матеріали для відображення графіка.</p>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const ctx = document.getElementById('materialsChart').getContext('2d');
+            const materialsData = JSON.parse(document.getElementById('materialsChart').dataset.materials);
+
+            if (materialsData.length === 0) {
+                console.error('Дані для графіка відсутні.');
+                return;
+            }
+
+            const types = ['Зброя', 'Боєприпаси', 'Продовольство', 'Обладнання', 'Медичні засоби'];
+            const counts = types.map(type => materialsData.filter(material => material.type === type).length);
+
+            // Створення графіка
+            let chartType = 'pie';
+            let chart = createChart(chartType, ctx, types, counts);
+
+            // Перемикання на кругову діаграму
+            document.getElementById('pieChartBtn').addEventListener('click', () => {
+                console.log('Перемикання на кругову діаграму');
+                chart = switchChart('pie', chart, ctx, types, counts);
+            });
+
+            // Перемикання на стовпчасту діаграму
+            document.getElementById('barChartBtn').addEventListener('click', () => {
+                console.log('Перемикання на стовпчасту діаграму');
+                chart = switchChart('bar', chart, ctx, types, counts);
+            });
+
+            // Функція для створення графіка
+            function createChart(type, ctx, labels, data) {
+                return new Chart(ctx, {
+                    type: type,
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Кількість матеріалів за типами',
+                            data: data,
+                            backgroundColor: [
+                                '#FF6384',
+                                '#36A2EB',
+                                '#FFCE56',
+                                '#4BC0C0',
+                                '#9966FF'
+                            ],
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Кількість матеріалів за типами'
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Функція для перемикання графіка
+            function switchChart(type, chart, ctx, labels, data) {
+                chart.destroy();
+                return createChart(type, ctx, labels, data);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,68 @@
+const express = require('express');
+const path = require('path');
+const bodyParser = require('body-parser');
+const session = require('express-session');
+const passport = require('passport');
+const mongoose = require('mongoose');
+const flash = require('connect-flash');
+
+const app = express();
+
+// Підключення Passport.js
+require('./config/passport')(passport);
+
+// Middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({ secret: 'secret', resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
+
+// View engine setup
+app.set('views', path.join(__dirname, 'views'));
+app.set('view engine', 'ejs');
+
+// Connect to MongoDB
+mongoose.connect('mongodb://localhost:27017/material_accounting', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'Connection error:'));
+db.once('open', () => {
+    console.log('Connected to MongoDB.');
+});
+
+// Routes
+const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth');
+const materialsRouter = require('./routes/materials');
+const usersRouter = require('./routes/users');
+const logsRouter = require('./routes/logs'); // Додано маршрут для журналів
+
+app.use('/', indexRouter);
+app.use('/auth', authRouter);
+app.use('/materials', materialsRouter);
+app.use('/users', usersRouter);
+app.use('/logs', logsRouter); // Підключено маршрут для журналів
+
+// Маршрут для виходу користувача
+app.get('/logout', (req, res) => {
+    req.logout(function(err) {
+        if (err) {
+            return next(err);
+        }
+        res.redirect('/auth/login');  // Перенаправлення на сторінку входу
+    });
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
+module.exports = app;

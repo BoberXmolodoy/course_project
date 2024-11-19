@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Журнали дій користувачів</title>
+    <link rel="stylesheet" href="/css/logs.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Журнали дій користувачів</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>Користувач</th>
+                    <th>Дія</th>
+                    <th>Матеріал</th>
+                    <th>Час</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% logs.forEach(log=> { %>
+                    <tr>
+                        <td>
+                            <%= log.user.username %>
+                        </td>
+                        <td>
+                            <%= log.action %>
+                        </td>
+                        <td>
+                            <%= log.material ? log.material.name : 'N/A' %>
+                        </td>
+                        <td>
+                            <%= new Date(log.timestamp).toLocaleString() %>
+                        </td>
+                    </tr>
+                    <% }); %>
+            </tbody>
+        </table>
+        <a href="/materials" class="back-link">Назад до списку матеріалів</a>
+    </div>
+</body>
+
+</html>

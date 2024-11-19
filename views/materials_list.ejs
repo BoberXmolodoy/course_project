@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Матеріальні ресурси</title>
+    <link rel="stylesheet" href="/css/materials_list.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Матеріальні ресурси</h1>
+
+        
+        <a href="/logout" class="close-new">Вийти</a>
+
+        <a href="/materials/new" class="add-new">Додати новий матеріал</a>
+        <a href="/materials/chart" class="add-new">Переглянути графік</a>
+        <% if (user.role === 'admin') { %>
+            <a href="/logs" class="add-new">Переглянути журнали</a>
+            <a href="/materials/export?search=<%= searchQuery %>" class="export-button">Експортувати у Excel</a>
+        <% } %>
+        
+        <% if (message.length > 0) { %>
+            <div class="alert error">
+                <%= message %>
+            </div>
+        <% } %>
+        <% if (successMessage.length > 0) { %>
+            <div class="alert success">
+                <%= successMessage %>
+            </div>
+        <% } %>
+        
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Пошук за типом" value="<%= searchQuery %>">
+            <button class="reset-button" id="resetSearch">Скинути пошук</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Назва</th>
+                    <th>Кількість</th>
+                    <th>Опис</th>
+                    <th>Тип</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody id="materialsTable">
+                <% materials.forEach(material => { %>
+                    <tr>
+                        <td><%= material.name %></td>
+                        <td><%= material.quantity %></td>
+                        <td><%= material.description %></td>
+                        <td><%= material.type %></td>
+                        <td class="actions">
+                            <form action="/materials/<%= material._id %>/edit" method="get">
+                                <button type="submit" class="button edit">Редагувати</button>
+                            </form>
+                            <form action="/materials/<%= material._id %>/delete" method="post">
+                                <button type="submit" class="button delete">Видалити</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% }); %>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const alertBox = document.querySelectorAll('.alert');
+            alertBox.forEach(alert => {
+                setTimeout(() => {
+                    alert.style.display = 'none';
+                }, 5000);
+            });
+
+            // Пошук і підсвічування
+            document.getElementById('searchInput').addEventListener('input', function () {
+                const searchQuery = this.value.toLowerCase();
+                fetch(`/materials/search?search=${searchQuery}`)
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('materialsTable').innerHTML = html;
+
+                        // Підсвічування знайденого тексту
+                        if (searchQuery) {
+                            const rows = document.querySelectorAll('#materialsTable tr');
+                            rows.forEach(row => {
+                                row.querySelectorAll('td:not(.actions)').forEach(cell => {
+                                    // Виключаємо стовпець з кнопками
+                                    const cellText = cell.innerHTML;
+                                    const regex = new RegExp(`(${searchQuery})`, 'gi');
+                                    cell.innerHTML = cellText.replace(regex, '<span class="highlight">$1</span>');
+                                });
+                            });
+                        }
+                    });
+            });
+
+            // Скидання пошуку
+            document.getElementById('resetSearch').addEventListener('click', function () {
+                const searchInput = document.getElementById('searchInput');
+                searchInput.value = ''; // Очищуємо поле пошуку
+                fetch('/materials/search?search=') // Викликаємо пошук з порожнім запитом
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('materialsTable').innerHTML = html;
+                    });
+            });
+        });
+    </script>
+</body>
+
+</html>

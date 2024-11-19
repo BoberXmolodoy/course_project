@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Логін</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        .container {
+            background: #334e68;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .container h1 {
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+
+        .container form div {
+            margin-bottom: 1rem;
+        }
+
+        .container label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .container input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        .container button.login {
+            width: 100%;
+            background: #218838;
+            color: white;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .container button.login:hover {
+            background: #218838;
+            transform: scale(1.05);
+        }
+
+        .container a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .container a:hover {
+            text-decoration: underline;
+        }
+
+        .alert {
+            color: #dc3545;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Логін</h1>
+        <% if (messages.error) { %>
+            <div class="alert alert-danger">
+                <%= messages.error %>
+            </div>
+            <% } %>
+                <form id="loginForm" action="/auth/login" method="post">
+                    <div>
+                        <label for="username">Користувач:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div>
+                        <label for="password">Пароль:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <button type="submit" class="login">Увійти</button>
+                </form>
+                <br>
+                <a href="/auth/register">Не маєте аккаунту? Зареєструватися</a>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function (event) {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                alert('Будь ласка, заповніть усі поля форми.');
+                event.preventDefault();
+            }
+        });
+    </script>
+</body>
+
+</html>

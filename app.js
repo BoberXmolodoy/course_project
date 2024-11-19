@@ -25,7 +25,7 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 // Connect to MongoDB
-mongoose.connect('mongodb://localhost:27017/material_accounting', {
+mongoose.connect('mongodb+srv://bbeznosuk9:Lt44rflQwt7g3dWA@cluster0.hi2qr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 });

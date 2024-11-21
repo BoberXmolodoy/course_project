@@ -8,10 +8,10 @@ const flash = require('connect-flash');
 
 const app = express();
 
-// Підключення Passport.js
+
 require('./config/passport')(passport);
 
-// Middleware
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
@@ -20,11 +20,11 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
 
-// View engine setup
+
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Connect to MongoDB
+
 mongoose.connect('mongodb+srv://bbeznosuk9:Lt44rflQwt7g3dWA@cluster0.hi2qr.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -36,7 +36,7 @@ db.once('open', () => {
     console.log('Connected to MongoDB.');
 });
 
-// Routes
+
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const materialsRouter = require('./routes/materials');
@@ -47,19 +47,19 @@ app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/materials', materialsRouter);
 app.use('/users', usersRouter);
-app.use('/logs', logsRouter); // Підключено маршрут для журналів
+app.use('/logs', logsRouter); 
 
-// Маршрут для виходу користувача
+
 app.get('/logout', (req, res) => {
     req.logout(function(err) {
         if (err) {
             return next(err);
         }
-        res.redirect('/auth/login');  // Перенаправлення на сторінку входу
+        res.redirect('/auth/login');  
     });
 });
 
-// Start server
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

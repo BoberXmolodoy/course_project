@@ -3,7 +3,7 @@ const router = express.Router();
 const Log = require('../models/log');
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 
-// Сторінка для перегляду журналів дій
+
 router.get('/', isAuthenticated, isAdmin, async (req, res) => {
     try {
         const logs = await Log.find().populate('user').populate('material').sort({ timestamp: -1 });

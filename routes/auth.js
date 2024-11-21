@@ -4,12 +4,12 @@ const passport = require('passport');
 const User = require('../models/user');
 const { check, validationResult } = require('express-validator');
 
-// Маршрут для відображення форми реєстрації
+
 router.get('/register', (req, res) => {
     res.render('register', { messages: req.flash() });
 });
 
-// Обробка реєстрації користувача
+
 router.post('/register', [
     check('username').not().isEmpty().withMessage('Користувач є обов’язковим.'),
     check('password').isLength({ min: 6 }).withMessage('Пароль повинен містити щонайменше 6 символів.'),
@@ -33,12 +33,11 @@ router.post('/register', [
     }
 });
 
-// Маршрут для відображення форми логіну
+
 router.get('/login', (req, res) => {
     res.render('login', { messages: req.flash() });
 });
 
-// Обробка логіну користувача
 router.post('/login', [
     check('username').not().isEmpty().withMessage('Користувач є обов’язковим.'),
     check('password').not().isEmpty().withMessage('Пароль є обов’язковим.')
@@ -56,7 +55,7 @@ router.post('/login', [
     })(req, res, next);
 });
 
-// Обробка виходу користувача
+
 router.get('/logout', (req, res) => {
     req.logout();
     res.redirect('/auth/login');

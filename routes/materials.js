@@ -1,18 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const Material = require('../models/material');
-const Log = require('../models/log'); // Підключення моделі журналів
+const Log = require('../models/log'); 
 const { isAuthenticated, isAdmin } = require('../middleware/auth');
 const { check, validationResult } = require('express-validator');
-const ExcelJS = require('exceljs'); // Бібліотека для роботи з Excel
+const ExcelJS = require('exceljs'); 
 
-// Функція для створення запису журналу
+
 const createLog = async (action, user, material) => {
     const log = new Log({ action, user, material });
     await log.save();
 };
 
-// Сторінка перегляду всіх матеріалів
+
 router.get('/', isAuthenticated, async (req, res) => {
     try {
         const searchQuery = req.query.search || '';
@@ -29,7 +29,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     }
 });
 
-// Маршрут для динамічного пошуку матеріалів
+
 router.get('/search', isAuthenticated, async (req, res) => {
     try {
         const searchQuery = req.query.search || '';
@@ -40,12 +40,12 @@ router.get('/search', isAuthenticated, async (req, res) => {
     }
 });
 
-// Сторінка для додавання нового матеріалу
+
 router.get('/new', isAuthenticated, (req, res) => {
     res.render('material_new', { user: req.user, message: req.flash('error') });
 });
 
-// Обробка додавання нового матеріалу
+
 router.post(
     '/',
     isAuthenticated,
@@ -79,7 +79,7 @@ router.post(
     }
 );
 
-// Сторінка редагування матеріалу
+
 router.get('/:id/edit', isAuthenticated, async (req, res) => {
     try {
         const material = await Material.findById(req.params.id);
@@ -89,7 +89,7 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
     }
 });
 
-// Обробка редагування матеріалу
+
 router.post(
     '/:id',
     isAuthenticated,
@@ -113,7 +113,7 @@ router.post(
 
         try {
             await Material.findByIdAndUpdate(req.params.id, req.body);
-            await createLog('update', req.user._id, req.params.id); // Створення запису журналу
+            await createLog('update', req.user._id, req.params.id); 
             req.flash('success', 'Матеріал успішно оновлено');
             res.redirect('/materials');
         } catch (err) {
@@ -122,7 +122,7 @@ router.post(
     }
 );
 
-// Обробка видалення матеріалу
+
 router.post('/:id/delete', isAuthenticated, async (req, res) => {
     if (req.user.role !== 'admin') {
         req.flash('error', 'Недостатньо прав для виконання цієї дії');
@@ -130,7 +130,7 @@ router.post('/:id/delete', isAuthenticated, async (req, res) => {
     }
     try {
         await Material.findByIdAndDelete(req.params.id);
-        await createLog('delete', req.user._id, req.params.id); // Створення запису журналу
+        await createLog('delete', req.user._id, req.params.id); 
         req.flash('success', 'Матеріал успішно видалено');
         res.redirect('/materials');
     } catch (err) {
@@ -138,7 +138,7 @@ router.post('/:id/delete', isAuthenticated, async (req, res) => {
     }
 });
 
-// Сторінка для відображення графіка
+
 router.get('/chart', isAuthenticated, async (req, res) => {
     try {
         const materials = await Material.find();
@@ -152,24 +152,23 @@ router.get('/chart', isAuthenticated, async (req, res) => {
     }
 });
 
-// Експорт матеріалів у файл Excel
 router.get('/export', isAuthenticated, async (req, res) => {
     try {
         const searchQuery = req.query.search || '';
         let materials;
 
-        // Якщо є запит пошуку, експортуємо лише знайдені матеріали
+        
         if (searchQuery) {
             materials = await Material.find({ type: { $regex: searchQuery, $options: 'i' } });
         } else {
-            materials = await Material.find(); // Якщо немає запиту пошуку, експортуємо всі матеріали
+            materials = await Material.find(); 
         }
 
-        // Ініціалізація Excel файлу
+        
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Матеріали');
 
-        // Додаємо заголовки
+        
         worksheet.columns = [
             { header: 'Назва', key: 'name', width: 20 },
             { header: 'Кількість', key: 'quantity', width: 15 },
@@ -177,17 +176,17 @@ router.get('/export', isAuthenticated, async (req, res) => {
             { header: 'Тип', key: 'type', width: 20 }
         ];
 
-        // Заповнюємо даними
+        
         materials.forEach(material => {
             worksheet.addRow(material);
         });
 
-        // Стиль для заголовків
+        
         worksheet.getRow(1).eachCell(cell => {
             cell.font = { bold: true };
         });
 
-        // Відправляємо файл
+        
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', 'attachment; filename="materials.xlsx"');
 
